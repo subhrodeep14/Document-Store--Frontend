@@ -2,26 +2,31 @@
 // src/pages/CompanyManagementPage.jsx
 
 import {
-  useEffect,
-  useState,
-} from "react";
+  Building2,
+  ShieldCheck,
+  Users,
+  Search,
+  UserCog,
+} from "lucide-react";
 
 import {
   motion,
   AnimatePresence,
 } from "framer-motion";
 
-import {
-  Building2,
-  ShieldCheck,
-  Users,
-  Search,
-} from "lucide-react";
+
 
 import toast from "react-hot-toast";
 
 import useAuthStore from "../hooks/useAuth";
+import {
+  useEffect,
+  useState,
+} from "react";
 
+import {
+  useNavigate,
+} from "react-router-dom";
 import {
   companyApi,
 } from "../utils/api";
@@ -37,7 +42,7 @@ import SwitchCompanyDropdown from "../components/company/SwitchCompanyDropdown";
 export default function CompanyManagementPage() {
   const user = useAuthStore( (s) => s.user );
   const activeCompany = useAuthStore( (s) => s.activeCompany );
-
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -161,41 +166,96 @@ export default function CompanyManagementPage() {
             {/* RIGHT */}
 
             <div className="flex flex-wrap gap-3">
-              <SwitchCompanyDropdown
-                companies={companies}
-              />
 
-              {user?.role ===
-                "SUPER_ADMIN" && (
-                <button
-                  onClick={() =>
-                    setShowCreate(true)
-                  }
-                  className="
-                    h-11
-                    px-5
+  <SwitchCompanyDropdown
+    companies={companies}
+  />
 
-                    rounded-2xl
+  {/* ACCOUNT SETTINGS */}
 
-                    bg-gradient-to-r
-                    from-indigo-600
-                    to-violet-600
+  <button
+    type="button"
+    onClick={() =>
+      navigate(
+        "/change-password"
+      )
+    }
+    className="
+      h-11
+      px-5
 
-                    hover:opacity-90
+      rounded-2xl
 
-                    text-white
-                    text-sm
-                    font-semibold
+      border
+      border-slate-200
+      dark:border-slate-700
 
-                    transition-all
-                  "
-                >
-                  Create Company
-                </button>
-              )}
+      bg-white
+      dark:bg-slate-900
 
-              
-            </div>
+      hover:bg-slate-50
+      dark:hover:bg-slate-800
+
+      text-slate-700
+      dark:text-slate-200
+
+      text-sm
+      font-semibold
+
+      flex
+      items-center
+      justify-center
+      gap-2
+
+      transition-all
+
+      hover:shadow-sm
+    "
+  >
+    <UserCog
+      size={17}
+    />
+
+    Account Settings
+  </button>
+
+  {/* CREATE COMPANY */}
+
+  {user?.role ===
+    "SUPER_ADMIN" && (
+    <button
+      type="button"
+      onClick={() =>
+        setShowCreate(true)
+      }
+      className="
+        h-11
+        px-5
+
+        rounded-2xl
+
+        bg-gradient-to-r
+        from-indigo-600
+        to-violet-600
+
+        hover:opacity-90
+
+        text-white
+        text-sm
+        font-semibold
+
+        flex
+        items-center
+        justify-center
+
+        transition-all
+      "
+    >
+      Create Company
+    </button>
+  )}
+
+</div>
           </div>
 
           {/* STATS */}

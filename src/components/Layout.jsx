@@ -12,21 +12,23 @@ import {
   Search,
   Menu,
 } from "lucide-react";
+
 import {
   Building2,
   LayoutDashboard,
 } from "lucide-react";
 
-
-
 import SwitchCompanyDropdown from "./company/SwitchCompanyDropdown";
 
 import { motion } from "framer-motion";
+
 import logo from "../public/logo.png";
+
 import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+
 import toast from "react-hot-toast";
 
 import useAuthStore from "../hooks/useAuth";
@@ -35,49 +37,49 @@ export default function Layout({
   children,
   onSearch,
 }) {
-const navigate =
-  useNavigate();
+  const navigate = useNavigate();
 
-const location =
-  useLocation();
+  const location = useLocation();
 
-const { user, logout } =
-  useAuthStore();
+  const { user, logout } =
+    useAuthStore();
 
-const activeCompany =
-  useAuthStore(
-    (s) => s.activeCompany
-  );
-const displayName =
-  user?.name?.trim()
-    ? user.name
-    : user?.email?.split("@")[0] ||
-      "User";
-const isAdmin =
-  user?.role === "ADMIN";
-
-const isSuperAdmin =
-  user?.role ===
-  "SUPER_ADMIN";
-
-const [isDark, setIsDark] =
-  useState(() => {
-    return (
-      localStorage.getItem(
-        "theme"
-      ) === "dark"
+  const activeCompany =
+    useAuthStore(
+      (s) => s.activeCompany
     );
-  });
 
-const [
-  mobileMenu,
-  setMobileMenu,
-] = useState(false);
+  const displayName =
+    user?.name?.trim()
+      ? user.name
+      : user?.email?.split("@")[0] ||
+        "User";
+
+  const isAdmin =
+    user?.role === "ADMIN";
+
+  const isSuperAdmin =
+    user?.role ===
+    "SUPER_ADMIN";
+
+  const [isDark, setIsDark] =
+    useState(() => {
+      return (
+        localStorage.getItem(
+          "theme"
+        ) === "dark"
+      );
+    });
+
+  const [
+    mobileMenu,
+    setMobileMenu,
+  ] = useState(false);
 
   /*
-   ─────────────────────────────────────
-   DARK MODE
-   ─────────────────────────────────────
+  ─────────────────────────────────────
+  DARK MODE
+  ─────────────────────────────────────
   */
 
   useEffect(() => {
@@ -103,9 +105,9 @@ const [
   }, [isDark]);
 
   /*
-   ─────────────────────────────────────
-   LOGOUT
-   ─────────────────────────────────────
+  ─────────────────────────────────────
+  LOGOUT
+  ─────────────────────────────────────
   */
 
   const handleLogout =
@@ -123,6 +125,17 @@ const [
           "Logout failed"
         );
       }
+    };
+
+  /*
+  ─────────────────────────────────────
+  PROFILE
+  ─────────────────────────────────────
+  */
+
+  const handleProfile =
+    () => {
+      navigate("/profile");
     };
 
   return (
@@ -189,6 +202,7 @@ const [
       {/* APP */}
 
       <div className="relative z-10">
+
         {/* NAVBAR */}
 
         <motion.header
@@ -217,7 +231,6 @@ const [
             backdrop-blur-xl
           "
         >
-          
           <div
             className="
               h-full
@@ -230,10 +243,15 @@ const [
               justify-between
             "
           >
+
             {/* LEFT */}
 
             <div className="flex items-center gap-4">
-              {/* <button 
+
+              {/* MOBILE MENU */}
+
+              {/*
+              <button
                 onClick={() =>
                   setMobileMenu(
                     !mobileMenu
@@ -262,430 +280,519 @@ const [
                     dark:text-slate-300
                   "
                 />
-              </button> */}
+              </button>
+              */}
 
               {/* LOGO */}
 
-      
+              <motion.button
+                whileHover={{
+                  scale: 1.03,
+                }}
+                whileTap={{
+                  scale: 0.97,
+                }}
+                onClick={() =>
+                  navigate(
+                    "/dashboard"
+                  )
+                }
+                className="
+                  flex
+                  items-center
+                  gap-4
 
-<motion.button
-  whileHover={{
-    scale: 1.03,
-  }}
-  whileTap={{
-    scale: 0.97,
-  }}
-  onClick={() =>
-    navigate("/dashboard")
-  }
-  className="
-    flex
-    items-center
-    gap-4
+                  rounded-2xl
 
-    rounded-2xl
+                  px-3
+                  py-2
 
-    px-3
-    py-2
+                  hover:bg-white/70
+                  dark:hover:bg-slate-800/60
 
-    hover:bg-white/70
-    dark:hover:bg-slate-800/60
+                  transition-all
+                  duration-300
+                "
+              >
 
-    transition-all
-    duration-300
-  "
->
-  {/* LOGO */}
-  <div className="relative">
-    {/* Glow */}
-    <div
-      className="
-        absolute
-        inset-0
+                {/* LOGO */}
 
-        rounded-2xl
+                <div className="relative">
 
-        bg-indigo-500/30
+                  {/* Glow */}
 
-        blur-2xl
-      "
-    />
+                  <div
+                    className="
+                      absolute
+                      inset-0
 
-    <div
-      className="
-        relative
+                      rounded-2xl
 
-        w-20
-        h-14
+                      bg-indigo-500/30
 
-        rounded-2xl
+                      blur-2xl
+                    "
+                  />
 
-        bg-white
-     
-        text-emerald-700
-         dark:bg-emerald-200
-        border
-        border-slate-200
-        dark:border-slate-700
+                  <div
+                    className="
+                      relative
 
-        shadow-xl
-        shadow-indigo-500/10
+                      w-20
+                      h-14
 
-        flex
-        items-center
-        justify-center
+                      rounded-2xl
 
-        overflow-hidden
-      "
-    >
-      <img
-        src={logo}
-        alt="MemoFlow"
-        className="
-          w-full
-          h-full
-          object-contain
-          p-1
-        "
-      />
-    </div>
-  </div>
+                      bg-white
 
-  {/* TEXT */}
-  <div className="text-left">
-    <h1
-      className="
-        text-xl
-        font-extrabold
+                      text-emerald-700
 
-        tracking-tight
+                      dark:bg-emerald-200
 
-        text-slate-900
-        dark:text-white
-      "
-    >
-      MemoFlow
-    </h1>
+                      border
+                      border-slate-200
+                      dark:border-slate-700
 
-    <p
-      className="
-        text-xs
+                      shadow-xl
+                      shadow-indigo-500/10
 
-        font-medium
+                      flex
+                      items-center
+                      justify-center
 
-        text-slate-500
-        dark:text-slate-400
+                      overflow-hidden
+                    "
+                  >
+                    <img
+                      src={logo}
+                      alt="MemoFlow"
+                      className="
+                        w-full
+                        h-full
+                        object-contain
+                        p-1
+                      "
+                    />
+                  </div>
+                </div>
 
-        tracking-wide
-      "
-    >
-      Digital Dispatch Register
-    </p>
-  </div>
-</motion.button>
+                {/* TEXT */}
+
+                <div className="text-left">
+
+                  <h1
+                    className="
+                      text-xl
+                      font-extrabold
+
+                      tracking-tight
+
+                      text-slate-900
+                      dark:text-white
+                    "
+                  >
+                    MemoFlow
+                  </h1>
+
+                  <p
+                    className="
+                      text-xs
+
+                      font-medium
+
+                      text-slate-500
+                      dark:text-slate-400
+
+                      tracking-wide
+                    "
+                  >
+                    Digital Dispatch Register
+                  </p>
+
+                </div>
+
+              </motion.button>
+
             </div>
-
-            {/* SEARCH */}
-
-          
 
             {/* RIGHT */}
 
-          <div
-  className="
-    flex
-    items-center
-    gap-3
+            <div
+              className="
+                flex
+                items-center
+                gap-3
 
-    bg-white/40
-    dark:bg-slate-900/40
+                bg-white/40
+                dark:bg-slate-900/40
 
-    px-3
-    py-2
+                px-3
+                py-2
 
-    rounded-2xl
+                rounded-2xl
 
-    border
-    border-slate-200/60
-    dark:border-slate-800/60
-  "
->
-  {(isAdmin ||
-    isSuperAdmin) && (
-    <div className="hidden lg:block">
-      <SwitchCompanyDropdown />
-    </div>
-  )}
-  
+                border
+                border-slate-200/60
+                dark:border-slate-800/60
+              "
+            >
 
-  {(isAdmin ||
-    isSuperAdmin) && (
-    <button
-      onClick={() =>
-        navigate(
-          location.pathname ===
-            "/admin/companies"
-            ? "/dashboard"
-            : "/admin/companies"
-        )
-      }
-      className="
-        hidden
-        md:flex
+              {/* COMPANY SWITCHER */}
 
-        h-10
-        px-4
+              {(isAdmin ||
+                isSuperAdmin) && (
+                <div className="hidden lg:block">
+                  <SwitchCompanyDropdown />
+                </div>
+              )}
 
-        rounded-xl
+              {/* COMPANY PANEL */}
 
-        bg-indigo-600
+              {(isAdmin ||
+                isSuperAdmin) && (
+                <button
+                  onClick={() =>
+                    navigate(
+                      location.pathname ===
+                        "/admin/companies"
+                        ? "/dashboard"
+                        : "/admin/companies"
+                    )
+                  }
+                  className="
+                    hidden
+                    md:flex
 
-        text-white
+                    h-10
+                    px-4
 
-        text-xs
-        font-semibold
+                    rounded-xl
 
-        items-center
-        gap-2
+                    bg-indigo-600
 
-        hover:bg-indigo-700
+                    text-white
 
-        transition-all
-      "
-    >
-      <LayoutDashboard
-        size={14}
-      />
+                    text-xs
+                    font-semibold
 
-      {location.pathname ===
-      "/admin/companies"
-        ? "Dashboard"
-        : "Company Panel"}
-    </button>
-  )}
+                    items-center
+                    gap-2
 
-  <div
-    className="
-      hidden
-      xl:flex
+                    hover:bg-indigo-700
 
-      h-10
-      px-3
+                    transition-all
+                  "
+                >
+                  <LayoutDashboard
+                    size={14}
+                  />
 
-      rounded-xl
+                  {location.pathname ===
+                  "/admin/companies"
+                    ? "Dashboard"
+                    : "Company Panel"}
+                </button>
+              )}
 
-      bg-violet-50
-      dark:bg-violet-500/10
+              {/* ROLE */}
 
-      items-center
-      gap-2
+              <div
+                className="
+                  hidden
+                  xl:flex
 
-      text-xs
-      font-semibold
+                  h-10
+                  px-3
 
-      text-violet-700
-      dark:text-violet-300
-    "
-  >
-    {user?.role?.replace(
-      "_",
-      " "
-    )}
-  </div>
+                  rounded-xl
 
-  {activeCompany && (
-    <div
-      className="
-        hidden
-        xl:flex
+                  bg-violet-50
+                  dark:bg-violet-500/10
 
-        h-10
-        px-3
+                  items-center
+                  gap-2
 
-        rounded-xl
+                  text-xs
+                  font-semibold
 
-        bg-emerald-50
-        dark:bg-emerald-500/10
+                  text-violet-700
+                  dark:text-violet-300
+                "
+              >
+                <Shield size={14} />
 
-        items-center
-        gap-2
+                {user?.role?.replace(
+                  "_",
+                  " "
+                )}
+              </div>
 
-        text-xs
-        font-semibold
+              {/* ACTIVE COMPANY */}
 
-        text-emerald-700
-        dark:text-emerald-300
-      "
-    >
-      <Building2
-        size={13}
-      />
+              {activeCompany && (
+                <div
+                  className="
+                    hidden
+                    xl:flex
 
-      {activeCompany.name}
-    </div>
-  )}
+                    h-10
+                    px-3
 
-  {/* DARK MODE */}
+                    rounded-xl
 
-  <button
-    onClick={() =>
-      setIsDark(
-        (v) => !v
-      )
-    }
-    className="
-      w-11
-      h-11
+                    bg-emerald-50
+                    dark:bg-emerald-500/10
 
-      rounded-2xl
+                    items-center
+                    gap-2
 
-      bg-slate-100
-      dark:bg-slate-800
+                    text-xs
+                    font-semibold
 
-      flex
-      items-center
-      justify-center
-    "
-  >
-    {isDark ? (
-      <Sun size={18} className="text-yellow-400" />
-    ) : (
-      <Moon size={18} className="text-blue-400" />
-    )}
-  </button>
+                    text-emerald-700
+                    dark:text-emerald-300
+                  "
+                >
+                  <Building2
+                    size={13}
+                  />
 
-  {/* USER */}
+                  {activeCompany.name}
+                </div>
+              )}
 
- <div
-  className="
-    hidden
-    md:flex
+              {/* DARK MODE */}
 
-    items-center
-    gap-3
+              <button
+                onClick={() =>
+                  setIsDark(
+                    (v) => !v
+                  )
+                }
+                className="
+                  w-11
+                  h-11
 
-    pl-4
-    ml-2
+                  rounded-2xl
 
-    border-l
-    border-slate-200
-    dark:border-slate-800
-  "
->
-  {/* Avatar */}
+                  bg-slate-100
+                  dark:bg-slate-800
 
-  <div className="relative">
-    <div
-      className="
-        absolute
-        inset-0
+                  flex
+                  items-center
+                  justify-center
 
-        rounded-2xl
+                  hover:bg-slate-200
+                  dark:hover:bg-slate-700
 
-        bg-indigo-500/20
+                  transition-all
+                "
+                title={
+                  isDark
+                    ? "Light mode"
+                    : "Dark mode"
+                }
+              >
+                {isDark ? (
+                  <Sun
+                    size={18}
+                    className="text-yellow-400"
+                  />
+                ) : (
+                  <Moon
+                    size={18}
+                    className="text-blue-400"
+                  />
+                )}
+              </button>
 
-        blur-lg
-      "
-    />
+              {/* USER / PROFILE */}
 
-    <div
-      className="
-        relative
+              <button
+                onClick={
+                  handleProfile
+                }
+                className="
+                  group
 
-        w-11
-        h-11
+                  hidden
+                  md:flex
 
-        rounded-2xl
+                  items-center
+                  gap-3
 
-        bg-gradient-to-br
-        from-indigo-600
-        via-violet-600
-        to-purple-600
+                  rounded-2xl
 
-        text-white
+                  px-2
+                  py-1.5
 
-        flex
-        items-center
-        justify-center
+                  text-left
 
-        font-bold
-        text-sm
+                  hover:bg-slate-100
+                  dark:hover:bg-slate-800
 
-        shadow-lg
-        shadow-indigo-500/20
-      "
-    >
-      {displayName
-        ?.charAt(0)
-        ?.toUpperCase()}
-    </div>
-  </div>
+                  transition-all
+                  duration-200
 
-  {/* User Info */}
+                  cursor-pointer
+                "
+                title="My Profile"
+              >
 
-  <div className="hidden xl:block">
-    <p
-      className="
-        text-sm
-        font-semibold
+                {/* AVATAR */}
 
-        text-slate-800
-        dark:text-white
-      "
-    >
-      {displayName}
-    </p>
+                <div className="relative">
 
-    <p
-      className="
-        text-xs
+                  <div
+                    className="
+                      absolute
+                      inset-0
 
-        text-slate-500
-        dark:text-slate-400
-      "
-    >
-      {user?.role
-        ?.replace("_", " ")}
-    </p>
-  </div>
-</div>
+                      rounded-2xl
 
-  {/* LOGOUT */}
+                      bg-indigo-500/20
 
-  <button
-    onClick={
-      handleLogout
-    }
-    className="
-      w-11
-      h-11
+                      blur-lg
 
-      rounded-2xl
+                      opacity-0
+                      group-hover:opacity-100
 
-      bg-red-50
-      dark:bg-red-500/10
+                      transition-opacity
+                    "
+                  />
 
-      flex
-      items-center
-      justify-center
-    "
-  >
-    <LogOut
-      size={18}
-      className="
-        text-red-500
-      "
-    />
-  </button>
-</div>
+                  <div
+                    className="
+                      relative
+
+                      w-11
+                      h-11
+
+                      rounded-2xl
+
+                      bg-gradient-to-br
+                      from-indigo-600
+                      via-violet-600
+                      to-purple-600
+
+                      text-white
+
+                      flex
+                      items-center
+                      justify-center
+
+                      font-bold
+                      text-sm
+
+                      shadow-lg
+                      shadow-indigo-500/20
+                    "
+                  >
+                    {displayName
+                      ?.charAt(0)
+                      ?.toUpperCase()}
+                  </div>
+
+                </div>
+
+                {/* USER INFO */}
+
+                <div className="hidden xl:block">
+
+                  <p
+                    className="
+                      text-sm
+                      font-semibold
+
+                      text-slate-800
+                      dark:text-white
+                    "
+                  >
+                    {displayName}
+                  </p>
+
+                  <p
+                    className="
+                      text-xs
+
+                      text-slate-500
+                      dark:text-slate-400
+                    "
+                  >
+                    {user?.role?.replace(
+                      "_",
+                      " "
+                    )}
+                  </p>
+
+                </div>
+
+                {/* PROFILE ICON */}
+
+                <User
+                  size={15}
+                  className="
+                    hidden
+                    xl:block
+
+                    text-slate-400
+                    dark:text-slate-500
+
+                    group-hover:text-indigo-500
+
+                    transition-colors
+                  "
+                />
+
+              </button>
+
+              {/* LOGOUT */}
+
+              <button
+                onClick={
+                  handleLogout
+                }
+                className="
+                  w-11
+                  h-11
+
+                  rounded-2xl
+
+                  bg-red-50
+                  dark:bg-red-500/10
+
+                  flex
+                  items-center
+                  justify-center
+
+                  hover:bg-red-100
+                  dark:hover:bg-red-500/20
+
+                  transition-all
+                "
+                title="Logout"
+              >
+                <LogOut
+                  size={18}
+                  className="
+                    text-red-500
+                  "
+                />
+              </button>
+
+            </div>
           </div>
         </motion.header>
 
-        
-        
-
         {/* MOBILE SEARCH */}
 
+        {/*
+        {onSearch && (
+          <div className="lg:hidden">
+            ...
+          </div>
+        )}
+        */}
 
         {/* CONTENT */}
 
@@ -706,6 +813,7 @@ const [
             {children}
           </motion.div>
         </main>
+
       </div>
     </div>
   );

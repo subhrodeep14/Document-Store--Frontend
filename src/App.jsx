@@ -1,7 +1,4 @@
-
-import {
-  useEffect,
-} from "react";
+import { useEffect } from "react";
 
 import {
   BrowserRouter,
@@ -10,25 +7,19 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import {
-  Toaster,
-} from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 import useAuthStore from "./hooks/useAuth";
 
-/*
-PAGES
-*/
 import ImportRegisterPage from "./pages/ImportRegisterPage";
 import LoginPage from "./pages/LoginPage";
-
 import DashboardPage from "./pages/DashboardPage";
-
 import CompanyManagementPage from "./pages/CompanyManagementPage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
 
 /*
 ──────────────────────────────────────
-LOADER
+FULL SCREEN LOADER
 ──────────────────────────────────────
 */
 
@@ -37,7 +28,6 @@ function FullScreenLoader() {
     <div
       className="
         min-h-screen
-
         flex
         items-center
         justify-center
@@ -48,16 +38,16 @@ function FullScreenLoader() {
     >
       <div
         className="
-          w-10
           h-10
+          w-10
+
+          animate-spin
 
           rounded-full
 
           border-[3px]
           border-indigo-600
           border-t-transparent
-
-          animate-spin
         "
       />
     </div>
@@ -66,7 +56,7 @@ function FullScreenLoader() {
 
 /*
 ──────────────────────────────────────
-PROTECTED
+PROTECTED ROUTE
 ──────────────────────────────────────
 */
 
@@ -79,7 +69,8 @@ function ProtectedRoute({
   } = useAuthStore();
 
   /*
-  LOADING
+  Wait for authentication
+  initialization.
   */
 
   if (isLoading) {
@@ -89,12 +80,10 @@ function ProtectedRoute({
   }
 
   /*
-  BLOCK
+  User is not logged in.
   */
 
-  if (
-    !isAuthenticated
-  ) {
+  if (!isAuthenticated) {
     return (
       <Navigate
         to="/login"
@@ -103,16 +92,12 @@ function ProtectedRoute({
     );
   }
 
-  /*
-  OK
-  */
-
   return children;
 }
 
 /*
 ──────────────────────────────────────
-PUBLIC
+PUBLIC ROUTE
 ──────────────────────────────────────
 */
 
@@ -125,7 +110,8 @@ function PublicRoute({
   } = useAuthStore();
 
   /*
-  WAIT
+  Wait for authentication
+  initialization.
   */
 
   if (isLoading) {
@@ -135,12 +121,10 @@ function PublicRoute({
   }
 
   /*
-  REDIRECT
+  Already logged in.
   */
 
-  if (
-    isAuthenticated
-  ) {
+  if (isAuthenticated) {
     return (
       <Navigate
         to="/dashboard"
@@ -148,10 +132,6 @@ function PublicRoute({
       />
     );
   }
-
-  /*
-  SHOW
-  */
 
   return children;
 }
@@ -163,30 +143,26 @@ APP
 */
 
 export default function App() {
-  /*
-  INIT
-  */
 
   const initialize =
     useAuthStore(
-      (s) => s.initialize
+      (state) =>
+        state.initialize
     );
 
   /*
-  LOAD AUTH
+  Initialize authentication
+  when application starts.
   */
 
   useEffect(() => {
     initialize();
-  }, []);
-
-  /*
-  UI
-  */
+  }, [initialize]);
 
   return (
     <BrowserRouter>
-      {/* TOASTER */}
+
+      {/* TOASTS */}
 
       <Toaster
         position="top-right"
@@ -194,21 +170,12 @@ export default function App() {
           duration: 3000,
 
           style: {
-            background:
-              "#fff",
-
-            color:
-              "#27272a",
-
+            background: "#fff",
+            color: "#27272a",
             border:
               "1px solid #e4e4e7",
-
-            borderRadius:
-              "14px",
-
-            fontSize:
-              "13px",
-
+            borderRadius: "14px",
+            fontSize: "13px",
             boxShadow:
               "0 10px 30px rgb(0 0 0 / 0.08)",
           },
@@ -218,7 +185,10 @@ export default function App() {
       {/* ROUTES */}
 
       <Routes>
-        {/* LOGIN */}
+
+        {/* ─────────────────────────────
+            LOGIN
+        ───────────────────────────── */}
 
         <Route
           path="/login"
@@ -229,7 +199,9 @@ export default function App() {
           }
         />
 
-        {/* DASHBOARD */}
+        {/* ─────────────────────────────
+            DASHBOARD
+        ───────────────────────────── */}
 
         <Route
           path="/dashboard"
@@ -240,27 +212,72 @@ export default function App() {
           }
         />
 
-        {/* COMPANY PANEL */}
+        {/* ─────────────────────────────
+            ACCOUNT SETTINGS
+           
+            This page contains:
+            - Change email
+            - Change password
+        ───────────────────────────── */}
 
         <Route
-  path="/admin/companies"
+  path="/dashboard"
   element={
     <ProtectedRoute>
-      <CompanyManagementPage />
+      <DashboardPage />
     </ProtectedRoute>
   }
 />
 
 <Route
-  path="/admin/import-register"
+  path="/account-settings"
   element={
     <ProtectedRoute>
-      <ImportRegisterPage />
+      <div className="p-10 text-2xl">
+        ACCOUNT SETTINGS ROUTE WORKS
+      </div>
     </ProtectedRoute>
   }
 />
 
-        {/* ROOT */}
+<Route
+  path="/change-password"
+  element={
+    <ProtectedRoute>
+      <ChangePasswordPage />
+    </ProtectedRoute>
+  }
+/>
+
+        {/* ─────────────────────────────
+            COMPANY MANAGEMENT
+        ───────────────────────────── */}
+
+        <Route
+          path="/admin/companies"
+          element={
+            <ProtectedRoute>
+              <CompanyManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ─────────────────────────────
+            IMPORT REGISTER
+        ───────────────────────────── */}
+
+        <Route
+          path="/admin/import-register"
+          element={
+            <ProtectedRoute>
+              <ImportRegisterPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ─────────────────────────────
+            ROOT
+        ───────────────────────────── */}
 
         <Route
           path="/"
@@ -272,7 +289,9 @@ export default function App() {
           }
         />
 
-        {/* FALLBACK */}
+        {/* ─────────────────────────────
+            UNKNOWN ROUTE
+        ───────────────────────────── */}
 
         <Route
           path="*"
@@ -283,8 +302,9 @@ export default function App() {
             />
           }
         />
+
       </Routes>
+
     </BrowserRouter>
   );
 }
-

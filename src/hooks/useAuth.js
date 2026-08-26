@@ -1,174 +1,67 @@
-
 import { create } from "zustand";
 
 import {
   authApi,
 } from "../utils/api";
 
-const useAuthStore = create(
-  (set, get) => ({
-    /*
-    AUTH
-    */
-
-    user: null,
-
-    isLoading: true,
-
-    isAuthenticated: false,
-
-    /*
-    ACTIVE COMPANY
-    GLOBAL STATE
-    */
-
-    activeCompany: null,
-
-    /*
-    SET ACTIVE COMPANY
-    */
-
-    setActiveCompany: (
-      company
-    ) => {
-      set({
-        activeCompany:
-          company,
-      });
-    },
-
-    /*
-    INITIALIZE
-    */
-
-    initialize: async () => {
-      try {
-        /*
-        API
-        */
-
-        const res =
-          await authApi.me();
-
-        const user =
-          res.data.user;
-
-        /*
-        DEFAULT COMPANY
-        ONLY FOR EMPLOYEE
-        */
-
-        let activeCompany =
-          null;
-
-        if (
-          user?.company
-        ) {
-          activeCompany = {
-            id: user.company.id,
-
-            name:
-              user.company.name,
-
-            code:
-              user.company.code,
-          };
-        }
-
-        /*
-        SET STATE
-        */
-
-        set({
-          user,
-
-          activeCompany,
-
-          isAuthenticated: true,
-
-          isLoading: false,
-        });
-      } catch (err) {
-        console.error(
-          "AUTH INIT ERROR:",
-          err
-        );
-
-        /*
-        CLEAR TOKEN
-        */
-
-        localStorage.removeItem(
-          "token"
-        );
-
-        /*
-        RESET
-        */
-
-        set({
-          user: null,
-
-          activeCompany: null,
-
-          isAuthenticated: false,
-
-          isLoading: false,
-        });
-      }
-    },
-
-    /*
-REGISTER
+/*
+──────────────────────────────────────
+COMPANY HELPER
+──────────────────────────────────────
 */
 
-register: async ({
-  email,
-  password,
-  name,
-  accessCode,
-}) => {
+const getActiveCompany = (
+  user
+) => {
 
   /*
-  API
+  ──────────────────────────────────────
+  SUPER ADMIN
+  ──────────────────────────────────────
+
+  Super Admin does not belong permanently
+  to a company.
+
+  The backend provides the currently
+  selected company through:
+
+  user.activeCompany
   */
 
-  const res =
-    await authApi.register({
-      email,
-      password,
-      name,
-      accessCode,
-    });
+  if (
+    user?.activeCompany
+  ) {
+    return {
+      id:
+        user.activeCompany.id,
 
-  const {
-    token,
-    user,
-  } = res.data;
+      name:
+        user.activeCompany.name,
 
-  /*
-  TOKEN
-  */
-
-  if (token) {
-    localStorage.setItem(
-      "token",
-      token
-    );
+      code:
+        user.activeCompany.code,
+    };
   }
 
   /*
-  DEFAULT COMPANY
-  */
+  ──────────────────────────────────────
+  NORMAL USER
+  ──────────────────────────────────────
 
-  let activeCompany =
-    null;
+  ADMIN and EMPLOYEE users belong to
+  their own company.
+
+  The backend provides it through:
+
+  user.company
+  */
 
   if (
     user?.company
   ) {
-    activeCompany = {
-      id: user.company.id,
+    return {
+      id:
+        user.company.id,
 
       name:
         user.company.name,
@@ -179,38 +72,166 @@ register: async ({
   }
 
   /*
-  SET
+  No company available.
   */
 
-  set({
-    user,
+  return null;
+};
 
-    activeCompany,
+/*
+──────────────────────────────────────
+AUTH STORE
+──────────────────────────────────────
+*/
 
-    isAuthenticated: true,
-
-    isLoading: false,
-  });
-
-  return res.data;
-},
+const useAuthStore = create(
+  (set) => ({
 
     /*
-    LOGIN
+    ──────────────────────────────────────
+    AUTH STATE
+    ──────────────────────────────────────
     */
 
-    login: async (
-      email,
-      password
+    user: null,
+
+    isLoading: true,
+
+    isAuthenticated: false,
+
+    /*
+    ──────────────────────────────────────
+    ACTIVE COMPANY
+    ──────────────────────────────────────
+    */
+
+    activeCompany: null,
+
+    /*
+    ──────────────────────────────────────
+    SET ACTIVE COMPANY
+    ──────────────────────────────────────
+    */
+
+    setActiveCompany: (
+      company
     ) => {
+
+      set({
+        activeCompany:
+          company,
+      });
+    },
+
+    /*
+    ──────────────────────────────────────
+    INITIALIZE
+    ──────────────────────────────────────
+    */
+
+    initialize: async () => {
+
+      try {
+
+        /*
+        Get current authenticated
+        user from backend.
+        */
+
+        const res =
+          await authApi.me();
+
+        const user =
+          res.data.user;
+
+        /*
+        Determine active company.
+
+        SUPER_ADMIN:
+          user.activeCompany
+
+        ADMIN / EMPLOYEE:
+          user.company
+        */
+
+        const activeCompany =
+          getActiveCompany(
+            user
+          );
+
+        set({
+
+          user,
+
+          activeCompany,
+
+          isAuthenticated: true,
+
+          isLoading: false,
+
+        });
+
+      } catch (err) {
+
+        console.error(
+          "AUTH INIT ERROR:",
+          err
+        );
+
+        /*
+        Clear old frontend token.
+        */
+
+        localStorage.removeItem(
+          "token"
+        );
+
+        /*
+        Reset authentication.
+        */
+
+        set({
+
+          user: null,
+
+          activeCompany: null,
+
+          isAuthenticated: false,
+
+          isLoading: false,
+
+        });
+      }
+    },
+
+    /*
+    ──────────────────────────────────────
+    REGISTER
+    ──────────────────────────────────────
+    */
+
+    register: async ({
+      email,
+      password,
+      name,
+      accessCode,
+    }) => {
+
       /*
-      API
+      Register through backend.
       */
 
       const res =
-        await authApi.login({
+        await authApi.register({
+
           email,
+
           password,
+
+          name,
+
+          accessCode,
+
         });
 
       const {
@@ -219,10 +240,18 @@ register: async ({
       } = res.data;
 
       /*
-      TOKEN
+      Temporary compatibility with
+      current JWT frontend setup.
+
+      We will remove localStorage
+      authentication later when we
+      completely move to httpOnly cookies.
       */
 
-      if (token) {
+      if (
+        token
+      ) {
+
         localStorage.setItem(
           "token",
           token
@@ -230,35 +259,19 @@ register: async ({
       }
 
       /*
-      DEFAULT COMPANY
+      Determine active company.
+
+      Normal registered users will
+      have user.company.
       */
 
-      let activeCompany =
-        null;
-
-      /*
-      EMPLOYEE
-      */
-
-      if (
-        user?.company
-      ) {
-        activeCompany = {
-          id: user.company.id,
-
-          name:
-            user.company.name,
-
-          code:
-            user.company.code,
-        };
-      }
-
-      /*
-      SET
-      */
+      const activeCompany =
+        getActiveCompany(
+          user
+        );
 
       set({
+
         user,
 
         activeCompany,
@@ -266,22 +279,237 @@ register: async ({
         isAuthenticated: true,
 
         isLoading: false,
+
       });
 
       return res.data;
     },
 
     /*
+    ──────────────────────────────────────
+    LOGIN
+    ──────────────────────────────────────
+    */
+
+    login: async (
+      email,
+      password
+    ) => {
+
+      /*
+      Login through backend.
+      */
+
+      const res =
+        await authApi.login({
+
+          email,
+
+          password,
+
+        });
+
+      const {
+        token,
+        user,
+      } = res.data;
+
+      /*
+      Temporary compatibility with
+      current JWT frontend setup.
+      */
+
+      if (
+        token
+      ) {
+
+        localStorage.setItem(
+          "token",
+          token
+        );
+      }
+
+      /*
+      Determine active company.
+
+      SUPER_ADMIN:
+        Backend gives us
+        user.activeCompany.
+
+      ADMIN / EMPLOYEE:
+        Backend gives us
+        user.company.
+      */
+
+      const activeCompany =
+        getActiveCompany(
+          user
+        );
+
+      set({
+
+        user,
+
+        activeCompany,
+
+        isAuthenticated: true,
+
+        isLoading: false,
+
+      });
+
+      return res.data;
+    },
+
+    /*
+    ──────────────────────────────────────
+    CHANGE PASSWORD
+    ──────────────────────────────────────
+    */
+
+    changePassword: async (
+      data
+    ) => {
+
+      const res =
+        await authApi.changePassword(
+          data
+        );
+
+      /*
+      Backend returns a fresh JWT.
+      */
+
+      if (
+        res.data.token
+      ) {
+
+        localStorage.setItem(
+          "token",
+          res.data.token
+        );
+      }
+
+      /*
+      If backend returns updated user,
+      keep Zustand synchronized.
+      */
+
+      if (
+        res.data.user
+      ) {
+
+        const activeCompany =
+          getActiveCompany(
+            res.data.user
+          );
+
+        set({
+
+          user:
+            res.data.user,
+
+          activeCompany,
+
+          isAuthenticated: true,
+
+        });
+      }
+
+      return res.data;
+    },
+
+    /*
+    ──────────────────────────────────────
+    CHANGE EMAIL
+    ──────────────────────────────────────
+    */
+
+    changeEmail: async ({
+      newEmail,
+      currentPassword,
+    }) => {
+
+      const res =
+        await authApi.changeEmail({
+
+          newEmail,
+
+          currentPassword,
+
+        });
+
+      const {
+        token,
+        user,
+      } = res.data;
+
+      /*
+      Store fresh token if backend
+      returns one.
+      */
+
+      if (
+        token
+      ) {
+
+        localStorage.setItem(
+          "token",
+          token
+        );
+      }
+
+      /*
+      Update Zustand immediately.
+      */
+
+      if (
+        user
+      ) {
+
+        const activeCompany =
+          getActiveCompany(
+            user
+          );
+
+        set({
+
+          user,
+
+          activeCompany,
+
+          isAuthenticated: true,
+
+          isLoading: false,
+
+        });
+      }
+
+      return res.data;
+    },
+
+    /*
+    ──────────────────────────────────────
     LOGOUT
+    ──────────────────────────────────────
     */
 
     logout: async () => {
+
       try {
+
         await authApi.logout();
-      } catch {}
+
+      } catch (err) {
+
+        console.error(
+          "LOGOUT ERROR:",
+          err
+        );
+      }
 
       /*
-      TOKEN
+      Remove frontend token.
       */
 
       localStorage.removeItem(
@@ -289,10 +517,11 @@ register: async ({
       );
 
       /*
-      RESET
+      Reset authentication.
       */
 
       set({
+
         user: null,
 
         activeCompany: null,
@@ -300,6 +529,7 @@ register: async ({
         isAuthenticated: false,
 
         isLoading: false,
+
       });
     },
   })

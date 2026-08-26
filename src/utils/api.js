@@ -44,20 +44,16 @@ api.interceptors.request.use(
     FROM ZUSTAND
     */
 
-    const activeCompany =
-      useAuthStore.getState()
-        .activeCompany;
-
-    /*
-    ADMIN / SUPER ADMIN
-    */
+        const {
+      activeCompany,
+      user,
+    } = useAuthStore.getState();
 
     if (
+      user?.role === "SUPER_ADMIN" &&
       activeCompany?.id
     ) {
-      config.headers[
-        "x-company-id"
-      ] =
+      config.headers["x-company-id"] =
         activeCompany.id;
     }
 
@@ -67,6 +63,12 @@ api.interceptors.request.use(
   (error) =>
     Promise.reject(error)
 );
+
+/*
+──────────────────────────────────────
+AUTH
+──────────────────────────────────────
+*/
 
 /*
 ──────────────────────────────────────
@@ -89,6 +91,18 @@ export const authApi = {
 
   me: () =>
     api.get("/auth/me"),
+
+  changePassword: (data) =>
+    api.post(
+      "/auth/change-password",
+      data
+    ),
+
+  changeEmail: (data) =>
+    api.post(
+      "/auth/change-email",
+      data
+    ),
 
   logout: () =>
     api.post(
